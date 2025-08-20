@@ -1,32 +1,53 @@
-name: 'CI'
+name: CI - Tests
+
 on:
-  pull_request:
-    paths-ignore: [ '**.md' ]
-  push:
-    paths-ignore: [ '**.md' ]
-    branches:
-      - main
   workflow_dispatch:
+  push:
+    branches: [ main ]
+  pull_request:
 
 jobs:
-  test:
+  tests:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
 
-      - name: Set up JDK 17
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
-          distribution: 'temurin'
+          distribution: temurin
+          java-version: 17   # change to your version if needed
 
-      - name: Run tests
-        run: ./gradlew test --stacktrace
+      - name: Run Unit + Integration Tests
+        run: mvn -B verify --fail-at-end
 
-      - name: Publish Test Report
+      # ✅ Unit test results
+      - name: Publish Unit Test Report
         uses: dorny/test-reporter@v1
         if: always()
         with:
-          name: JUnit Tests
-          path: '**/build/test-results/test/TEST-*.xml'
+          name: Unit Tests
+          path: target/surefire-reports/*.xml
           reporter: java-junit
+
+      # ✅ Integration test results
+      - name: Publish Integration Test Report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Integration Tests
+          path: target/failsafe-reports/*.xml
+          reporter: java-junit
+
+      # ✅ Summary in GitHub UI
+      - name: Add Test Summary
+        if: always()
+        run: |
+          echo "## 🧪 Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Unit test reports from \`target/surefire-reports\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Integration test reports from \`target/failsafe-reports\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "See the **Test Reports** section of this job for detailed failures with stacktraces." >> $GITHUB_STEP_SUMMARY
