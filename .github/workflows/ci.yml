@@ -1,4 +1,4 @@
-name: Test Summary Example
+name: CI
 
 on: [push, pull_request]
 
