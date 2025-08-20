@@ -1,53 +1,38 @@
 name: 'CI'
-
 on:
-  workflow_dispatch:
   push:
-    branches: [ main ]
   pull_request:
+  workflow_dispatch:
 
 jobs:
-  tests:
+  test:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up JDK
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          distribution: temurin
-          java-version: 17   # change to your version if needed
+          java-version: '17'
+          distribution: 'temurin'
 
-      - name: Run Unit + Integration Tests
-        run: mvn -B verify --fail-at-end
+      - name: Run tests with Gradle
+        run: ./gradlew clean test
 
-      # ✅ Unit test results
-      - name: Publish Unit Test Report
-        uses: dorny/test-reporter@v1
-        if: always()
+      # ✅ Generate Allure Report
+      - name: Generate Allure Report
+        run: ./gradlew allureReport
+
+      # ✅ Upload Allure results (build/allure-results)
+      - name: Upload Allure Results
+        uses: actions/upload-artifact@v4
         with:
-          name: Unit Tests
-          path: target/surefire-reports/*.xml
-          reporter: java-junit
+          name: allure-results
+          path: build/allure-results
 
-      # ✅ Integration test results
-      - name: Publish Integration Test Report
-        uses: dorny/test-reporter@v1
-        if: always()
+      # ✅ Upload full Allure HTML report (build/reports/allure-report)
+      - name: Upload Allure Report
+        uses: actions/upload-artifact@v4
         with:
-          name: Integration Tests
-          path: target/failsafe-reports/*.xml
-          reporter: java-junit
-
-      # ✅ Summary in GitHub UI
-      - name: Add Test Summary
-        if: always()
-        run: |
-          echo "## 🧪 Test Results" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- Unit test reports from \`target/surefire-reports\`" >> $GITHUB_STEP_SUMMARY
-          echo "- Integration test reports from \`target/failsafe-reports\`" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "See the **Test Reports** section of this job for detailed failures with stacktraces." >> $GITHUB_STEP_SUMMARY
+          name: allure-report
+          path: build/reports/allure-report
