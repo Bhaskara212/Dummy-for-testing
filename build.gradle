@@ -17,8 +17,8 @@ test {
 }
 
 allure {
-    version.set("2.24.0")
-    aspectjweaver.set(true)
-    autoconfigure.set(true)
-    clean.set(true)
+    version = "2.24.0"        // ✅ plain assignment
+    aspectjweaver = true      // ✅ plain boolean
+    autoconfigure = true
+    clean = true
 }
