@@ -17,24 +17,11 @@ jobs:
       - name: Run tests
         run: ./gradlew test --stacktrace
 
-      # ✅ Publish test results (JUnit report)
-      - name: Publish unit test report
+      # ✅ Publish test results with dorny/test-reporter
+      - name: Publish Test Report
+        uses: dorny/test-reporter@v1
         if: always()
-        uses: mikepenz/action-junit-report@v5
         with:
-          report_paths: '**/build/test-results/test/TEST-*.xml'
-          detailed_summary: true
-          include_time_in_summary: true
-          require_passed_tests: true
-
-      # ✅ Write failed tests directly into Job Summary tab
-      - name: Add test summary
-        if: always()
-        run: |
-          echo "## ❌ Failed Tests Summary" >> $GITHUB_STEP_SUMMARY
-          for file in $(find . -type f -name "TEST-*.xml"); do
-            suite=$(basename "$file")
-            echo "### $suite" >> $GITHUB_STEP_SUMMARY
-            grep -A 5 "<failure" "$file" | sed -E 's/<[^>]+>//g' >> $GITHUB_STEP_SUMMARY || true
-            grep -A 5 "<error" "$file" | sed -E 's/<[^>]+>//g' >> $GITHUB_STEP_SUMMARY || true
-          done
+          name: JUnit Tests
+          path: '**/build/test-results/test/TEST-*.xml'
+          reporter: java-juni
