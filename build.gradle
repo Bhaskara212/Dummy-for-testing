@@ -17,8 +17,8 @@ test {
 }
 
 allure {
-    version = "2.24.0"        // ✅ plain assignment
-    aspectjweaver = true      // ✅ plain boolean
+    version = "2.24.0"   // ✅ supported property
+    aspectjweaver = true
     autoconfigure = true
-    clean = true
+    // ❌ clean removed (not supported anymore)
 }
