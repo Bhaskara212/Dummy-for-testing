@@ -1,6 +1,9 @@
 name: CI
 
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
 
 jobs:
   test:
@@ -17,7 +20,6 @@ jobs:
       - name: Run tests
         run: ./gradlew test --stacktrace
 
-      # ✅ Publish test results with dorny/test-reporter
       - name: Publish Test Report
         uses: dorny/test-reporter@v1
         if: always()
