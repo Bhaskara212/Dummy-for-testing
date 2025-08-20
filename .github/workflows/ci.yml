@@ -17,11 +17,11 @@ jobs:
           distribution: 'temurin'
 
       - name: Run tests with Gradle
-        run: ./gradlew clean test
+        run: gradle wrapper clean test
 
       # ✅ Generate Allure Report
       - name: Generate Allure Report
-        run: ./gradlew allureReport
+        run: gradle wrapper allureReport
 
       # ✅ Upload Allure results (build/allure-results)
       - name: Upload Allure Results
