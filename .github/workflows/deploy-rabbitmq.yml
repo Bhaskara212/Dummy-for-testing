@@ -1,0 +1,28 @@
+name: Deploy RabbitMQ via ArgoCD
+
+on:
+  repository_dispatch:
+    types:
+      - deploy-rabbitmq
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Show received inputs
+        run: |
+          echo "Cluster   : ${{ github.event.client_payload.cluster }}"
+          echo "Namespace : ${{ github.event.client_payload.namespace }}"
+
+      - name: Deploy RabbitMQ via ArgoCD
+        run: |
+          DEPLOY_NAMESPACE="${{ github.event.client_payload.namespace }}"
+          CLUSTER="${{ github.event.client_payload.cluster }}"
+
+          echo "🚀 Deploying RabbitMQ"
+          echo "Cluster: $CLUSTER"
+          echo "Namespace: $DEPLOY_NAMESPACE"
+
+          # TEST ONLY
+          echo "argocd app sync rabbitmq"
